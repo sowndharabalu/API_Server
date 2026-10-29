@@ -36,15 +36,14 @@ public class UserController implements HttpHandler {
         } else if ("POST".equals(method) && path.equals("/api/users")) {
             String json= readRequestBody(exchange);
             User user=JsonUtil.jsontoUser(json);
-            service.createUser(user);
-            sendJsonResponse(exchange, json+" created!", 201);
+            User created=service.createUser(user);
+            sendJsonResponse(exchange, JsonUtil.usertoJson(created), 201);
         } else if ("PUT".equals(method) && path.matches("/api/users/\\d+")) {
             int id = Integer.parseInt(path.substring("/api/users/".length()));
             String json=readRequestBody(exchange);
-            String name=JsonUtil.extractJsonField(json, "name");
-            String email=JsonUtil.extractJsonField(json, "email");
-            LocalDateTime time=LocalDateTime.parse(JsonUtil.extractJsonField(json, "time"));
-            service.UpdateUser(User.create(id, name, email, time));
+            User user=JsonUtil.jsontoUser(json);
+            User updated=service.updateUser(User.create(id,user.name(),user.email(),user.createdAt()));
+            sendJsonResponse(exchange, JsonUtil.usertoJson(updated), 200);
         } else if ("DELETE".equals(method) && path.matches("/api/users/\\d+")) {
             int id = Integer.parseInt(path.substring("/api/users/".length()));
             boolean t=service.deleteUser(id);
@@ -53,16 +52,21 @@ public class UserController implements HttpHandler {
             }else {
                 sendErrorResponse(exchange, "\"error\":\"User not found\"", 404);
             }
+        }else {
+            sendErrorResponse(exchange, "\"error\":\"Not Found\"", 404);
         }
     }
     private String readRequestBody(HttpExchange exchange) throws IOException {
-        return exchange.getRequestBody().toString();
+        try (var is = exchange.getRequestBody()) {
+            return new String(is.readAllBytes());
+        }
     }
     private void sendJsonResponse(HttpExchange exchange, String json, int statusCode) throws IOException {
-        exchange.sendResponseHeaders(statusCode, json.length());
-        exchange.getResponseHeaders().add("Content-Type", "application/json");
-        exchange.getResponseBody().write(json.getBytes());
-        exchange.getResponseBody().close();
+        exchange.getResponseHeaders().set("Content-Type", "application/json");
+        exchange.sendResponseHeaders(statusCode, json.getBytes().length);
+        try (var os = exchange.getResponseBody()) {
+            os.write(json.getBytes());
+        }
     }
     private void sendErrorResponse(HttpExchange exchange, String msg, int statusCode) throws IOException {
         exchange.sendResponseHeaders(statusCode, msg.length());

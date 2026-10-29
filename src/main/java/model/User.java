@@ -7,7 +7,7 @@ public record User(Integer id, String name, String email, LocalDateTime createdA
         if (name == null) {
             throw new IllegalArgumentException("User's name cannot be null");
         }
-        if (!email.contains("@") && !email.contains(".")) {
+        if (email==null || !(email.contains("@") && email.contains("."))) {
             throw new IllegalArgumentException("Invalid email address");
         }
     }

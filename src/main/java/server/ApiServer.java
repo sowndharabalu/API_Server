@@ -22,6 +22,6 @@ public class ApiServer {
         server.start();
     }
     public void shutdown() {
-        server.stop(0);
+        server.stop(1);
     }
 }

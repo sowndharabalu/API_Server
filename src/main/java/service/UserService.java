@@ -21,7 +21,7 @@ public class UserService {
         return userRepo.save(user);
     }
 
-    public User UpdateUser(User user) {
+    public User updateUser(User user) {
         if (user.name() == null || user.email() == null) {
             throw new IllegalArgumentException("User's name or email cannot be null");
         }

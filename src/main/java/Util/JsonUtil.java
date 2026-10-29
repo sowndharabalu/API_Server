@@ -4,6 +4,8 @@ import model.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class JsonUtil {
     public static String usertoJson(User user) {
@@ -12,27 +14,26 @@ public class JsonUtil {
     }
 
     public static String extractJsonField(String json, String field) {
-        String jsonField = "\""+field+"\":";
-        int index = json.indexOf(jsonField);
-        if (index == -1) {
-            return null;
+        String regex="\""+field+"\"\\s*:\\s*(?:\"([^\"]*)\"|(\\d+))";
+        Pattern pattern=Pattern.compile(regex);
+        Matcher matcher=pattern.matcher(json);
+        if(matcher.find()){
+            if (matcher.group(1) != null) {
+                return matcher.group(1);
+            }else if (matcher.group(2) != null) {
+                return matcher.group(2);
+            }
         }
-        int start = json.indexOf("\"",index+jsonField.length());
-        if (start == -1) {
-            return null;
-        }
-        int end = json.indexOf("\"",start+1);
-        if (end == -1) {
-            return null;
-        }
-        return json.substring(start+1, end);
+        return null;
     }
 
     public static User jsontoUser(String json) {
-        int id=Integer.parseInt(extractJsonField(json, "id"));
+        String strId=extractJsonField(json, "id");
+        Integer id=(strId!=null) ? Integer.parseInt(strId) : null;
         String name=extractJsonField(json, "name");
         String email=extractJsonField(json, "email");
-        LocalDateTime createdAt=LocalDateTime.parse(extractJsonField(json, "createdAt"));
+        String strTime=extractJsonField(json, "createdAt");
+        LocalDateTime createdAt=(strTime!=null) ? LocalDateTime.parse(strTime) : null;
         return User.create(id,name,email,createdAt);
     }
 
@@ -41,7 +42,7 @@ public class JsonUtil {
         for (User user : users) {
             json.append(usertoJson(user)).append(",");
         }
-        json = json.deleteCharAt(json.length()-1).append("]");
+        json.deleteCharAt(json.length()-1).append("]");
         return json.toString();
     }
 }

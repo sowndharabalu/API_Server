@@ -108,7 +108,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     private static User update(User user) {
-        String query = "UPDATE users SET name = ?, email = ?, created_at = ? WHERE id = ?";
+        String query = "UPDATE users SET name = ?, email = ?, created_at = ? WHERE user_id = ?";
         try (Connection conn = DBConnect.getConnection();
         PreparedStatement ps=conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);) {
             ps.setString(1, user.name());
@@ -116,17 +116,14 @@ public class UserRepositoryImpl implements UserRepository {
             ps.setObject(3, user.createdAt());
             ps.setInt(4, user.id());
             ps.executeUpdate();
-            try (ResultSet rs = ps.getGeneratedKeys()) {
-                rs.next();
-                return mapToUser(rs);
-            }
+            return user;
         }catch (SQLException e){
             throw new RuntimeException("Unable to update user: " + e.getMessage());
         }
     }
 
     private static User mapToUser(ResultSet rs) throws SQLException {
-        int id = rs.getInt("id");
+        int id = rs.getInt("user_id");
         String name = rs.getString("name");
         String email = rs.getString("email");
         LocalDateTime createdAt = rs.getObject("created_at", LocalDateTime.class);
