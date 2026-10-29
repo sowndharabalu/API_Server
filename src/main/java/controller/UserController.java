@@ -7,9 +7,6 @@ import model.User;
 import service.UserService;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 public class UserController implements HttpHandler {

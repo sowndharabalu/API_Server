@@ -22,7 +22,7 @@ public class UserRepositoryImpl implements UserRepository {
     public Optional<User> findById(int id) {
         String query = "SELECT * FROM users WHERE user_id = ?";
         try(Connection con=DBConnect.getConnection();
-        PreparedStatement ps=con.prepareStatement(query);){
+        PreparedStatement ps=con.prepareStatement(query)){
             ps.setInt(1, id);
             try(ResultSet rs=ps.executeQuery()){
                 if(rs.next()){
@@ -40,7 +40,7 @@ public class UserRepositoryImpl implements UserRepository {
         String query = "SELECT * FROM users ORDER BY user_id";
         List<User> users = new ArrayList<>();
         try (Connection con=DBConnect.getConnection();
-        PreparedStatement ps=con.prepareStatement(query);){
+        PreparedStatement ps=con.prepareStatement(query)){
             try(ResultSet rs=ps.executeQuery()){
                 while(rs.next()){
                     users.add(mapToUser(rs));
@@ -56,7 +56,7 @@ public class UserRepositoryImpl implements UserRepository {
     public Optional<User> findByEmail(String email) {
         String query = "SELECT * FROM users WHERE email = ?";
         try (Connection con=DBConnect.getConnection();
-        PreparedStatement ps=con.prepareStatement(query);){
+        PreparedStatement ps=con.prepareStatement(query)){
             ps.setString(1, email);
             try(ResultSet rs=ps.executeQuery()){
                 if(rs.next()){
@@ -78,13 +78,10 @@ public class UserRepositoryImpl implements UserRepository {
     public boolean delete(int id) {
         String query = "DELETE FROM users WHERE user_id = ?";
         try (Connection con=DBConnect.getConnection();
-        PreparedStatement ps=con.prepareStatement(query);){
+        PreparedStatement ps=con.prepareStatement(query)){
             ps.setInt(1, id);
             int count=ps.executeUpdate();
-            if(count==0){
-                return false;
-            }
-            return true;
+            return count != 0;
         }catch (SQLException e){
             throw new RuntimeException("User not found: "+e.getMessage());
         }
@@ -93,7 +90,7 @@ public class UserRepositoryImpl implements UserRepository {
     private static User insert(User user) {
         String query = "INSERT INTO users (name, email, created_at) VALUES (?, ?, ?)";
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement ps=conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);) {
+             PreparedStatement ps=conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, user.name());
             ps.setString(2, user.email());
             ps.setObject(3, user.createdAt());
@@ -110,7 +107,7 @@ public class UserRepositoryImpl implements UserRepository {
     private static User update(User user) {
         String query = "UPDATE users SET name = ?, email = ?, created_at = ? WHERE user_id = ?";
         try (Connection conn = DBConnect.getConnection();
-        PreparedStatement ps=conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);) {
+        PreparedStatement ps=conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, user.name());
             ps.setString(2, user.email());
             ps.setObject(3, user.createdAt());

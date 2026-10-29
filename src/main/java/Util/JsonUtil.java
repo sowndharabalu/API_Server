@@ -9,8 +9,7 @@ import java.util.regex.Pattern;
 
 public class JsonUtil {
     public static String usertoJson(User user) {
-        String json = String.format("{\"id\": \"%d\",\"name\": \"%s\",\"email\": \"%s\",\"createdAt\": \"%s\"}",user.id(),user.name(),user.email(),user.createdAt().toString());
-        return json;
+        return String.format("{\"id\": \"%d\",\"name\": \"%s\",\"email\": \"%s\",\"createdAt\": \"%s\"}",user.id(),user.name(),user.email(),user.createdAt().toString());
     }
 
     public static String extractJsonField(String json, String field) {

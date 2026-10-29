@@ -17,7 +17,7 @@ public class ApiServer {
         server.createContext("/api/users", controller);
         server.createContext("/api/users/", controller);
     }
-    public void start() throws IOException{
+    public void start() {
         Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
         server.start();
     }
